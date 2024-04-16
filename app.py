@@ -1,63 +1,63 @@
 import pandas as pd
-from sklearn.impute import KNNImputer
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime
 
-# loading in data
-base_path = './data/'
-ufc_event_data = pd.read_csv(base_path + 'ufc_event_data.csv')
-ufc_fight_data = pd.read_csv(base_path + 'ufc_fight_data.csv')
-ufc_fight_stat_data = pd.read_csv(base_path + 'ufc_fight_stat_data.csv')
-ufc_fighter_data = pd.read_csv(base_path + 'ufc_fighter_data.csv')
+def load_data(base_path):
+    event_data = pd.read_csv(base_path + 'ufc_event_data.csv')
+    fight_data = pd.read_csv(base_path + 'ufc_fight_data.csv')
+    fighter_data = pd.read_csv(base_path + 'ufc_fighter_data.csv')
+    fight_stat_data = pd.read_csv(base_path + 'ufc_event_data.csv')
+    return event_data, fight_data, fighter_data, fight_stat_data
 
+def preprocess_event_data(event_data):
+    """Preprocess event data to ensure datetime format."""
+    event_data['event_date'] = pd.to_datetime(event_data['event_date'])
+    return event_data
 
-def clean_ufc_fighter_data(filepath):
-    # Load data
-    ufc_fighter_data = pd.read_csv(filepath)
+def calculate_age_at_last_fight(fight_data, event_data, fighter_data):
+    """Calculate the age of fighters at their last fight by merging fight, event, and fighter data."""
+    # Merge event data with fight data
+    fight_data = pd.merge(fight_data, event_data[['event_id', 'event_date']], on='event_id', how='left')
 
-    # Display initial missing data counts
-    print("Initial missing values in UFC Fighter Data:")
-    print(ufc_fighter_data.isnull().sum())
+    # Reshape fight data
+    fights_f1 = fight_data[['f_1', 'event_date']].rename(columns={'f_1': 'fighter_id'})
+    fights_f2 = fight_data[['f_2', 'event_date']].rename(columns={'f_2': 'fighter_id'})
+    all_fights = pd.concat([fights_f1, fights_f2])
 
-    # Handle missing values
-    # Dropping rows with missing last names
-    ufc_fighter_data.dropna(subset=['fighter_l_name'], inplace=True)
+    # Find the last fight date
+    last_fights = all_fights.groupby('fighter_id')['event_date'].max().reset_index()
 
-    # Filling nicknames with 'No Nickname'
-    ufc_fighter_data['fighter_nickname'].fillna('No Nickname', inplace=True)
+    # Merge last fight date with fighter data
+    fighter_data = pd.merge(fighter_data, last_fights, on='fighter_id', how='left')
 
-    # Filling missing height and weight with the mean
-    average_height = ufc_fighter_data['fighter_height_cm'].mean()
-    average_weight = ufc_fighter_data['fighter_weight_lbs'].mean()
-    ufc_fighter_data['fighter_height_cm'].fillna(average_height, inplace=True)
-    ufc_fighter_data['fighter_weight_lbs'].fillna(average_weight, inplace=True)
+    # Calculate the age at the last fight
+    fighter_data['fighter_dob'] = pd.to_datetime(fighter_data['fighter_dob'])
+    fighter_data['age_at_last_fight'] = (fighter_data['event_date'].dt.year - fighter_data['fighter_dob'].dt.year)
+    
+    return fighter_data
 
-    # Imputing missing reach using KNN based on height and weight
-    imputer = KNNImputer(n_neighbors=5)
-    ufc_fighter_data[['fighter_height_cm', 'fighter_weight_lbs', 'fighter_reach_cm']] = imputer.fit_transform(
-        ufc_fighter_data[['fighter_height_cm', 'fighter_weight_lbs', 'fighter_reach_cm']]
-    )
+def plot_histogram(data, column, bins=20, kde=False, title="", xlabel="", ylabel=""):
+    sns.histplot(data=data, x=column, bins=bins, kde=kde)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.show()
 
-    # Filling missing stance with the mode
-    common_stance = ufc_fighter_data['fighter_stance'].mode()[0]
-    ufc_fighter_data['fighter_stance'].fillna(common_stance, inplace=True)
+def main():
+    base_path = './data/'
+    event_data, fight_data, fighter_data, fight_stat_data = load_data(base_path)
+    event_data = preprocess_event_data(event_data)
+    fighter_data = calculate_age_at_last_fight(fight_data, event_data, fighter_data)
+    
+    # Display data and plot histogram
+    print("\nMissing or Incorrect Data in Final Dataset:")
+    print(fighter_data[['fighter_id', 'event_date', 'age_at_last_fight']].isnull().sum())
+    print("\nSample Data with Ages at Last Fight:")
+    print(fighter_data[['fighter_id', 'event_date', 'age_at_last_fight']].head())
+    
+    plot_histogram(fighter_data, 'age_at_last_fight', bins=20, kde=True, title='Distribution of Fighter Ages at Last Fight',
+                   xlabel='Age at Last Fight', ylabel='Frequency')
 
-    # Dropping rows with missing date of birth
-    ufc_fighter_data.dropna(subset=['fighter_dob'], inplace=True)
-
-    # Setting missing NC/DQ to 0
-    ufc_fighter_data['fighter_nc_dq'].fillna(0, inplace=True)
-
-    # Remove duplicates
-    ufc_fighter_data.drop_duplicates(inplace=True)
-
-    # Verify data cleaning
-    print("\nAfter cleaning, missing values in UFC Fighter Data:")
-    print(ufc_fighter_data.isnull().sum())
-
-    # Display cleaned data summary
-    print("\nCleaned UFC Fighter Data sample:")
-    print(ufc_fighter_data.head())
-
-    return ufc_fighter_data
-
-# Usage example
-cleaned_ufc_fighter_data = clean_ufc_fighter_data(base_path + 'ufc_fighter_data.csv')
+if __name__ == "__main__":
+    main()
