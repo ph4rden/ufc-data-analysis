@@ -60,4 +60,4 @@ def clean_ufc_fighter_data(filepath):
     return ufc_fighter_data
 
 # Usage example
-cleaned_data = clean_ufc_fighter_data(base_path + 'ufc_fighter_data.csv')
+cleaned_ufc_fighter_data = clean_ufc_fighter_data(base_path + 'ufc_fighter_data.csv')
