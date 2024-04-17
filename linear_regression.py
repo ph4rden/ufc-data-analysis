@@ -65,3 +65,18 @@ def main():
 
 if __name__ == "__main__":
     main()
+    """
+        Depedent Variable: Career Length
+        Indepedent Variables: physical attributes such as fighter_height_cm, fighter_reach_cm, fighter_stance
+        
+        The model suggests that certain attributes like reach and specific fighting stances (Southpaw, Switch) are significantly 
+        associated with career length, although the overall model explains very little of the variation in career lengths. 
+        The significant p-values for the model (F-statistic) and some coefficients suggest that these features do
+        have effects worth considering, but the overall low R-squared indicates that many other unmodeled factors 
+        may also be influencing career lengths.
+        
+        So basically...
+        
+        Reach and stance do play a role in determining the length of a UFC fighter's career, 
+        but they are just a small part of the whole story
+    """
