@@ -57,10 +57,11 @@ def run_regression_analysis(fighter_data):
 def main():
     base_path = './data/'
     fighter_data, fight_data, event_data = load_data(base_path)
+    print("Columns after loading data:", fighter_data.columns)  # Debugging line to check columns
     fighter_data = prepare_data(fighter_data, fight_data, event_data)
+    print("Columns after preparation:", fighter_data.columns)  # More debugging
     result = run_regression_analysis(fighter_data)
     print(result)
-    
 
 if __name__ == "__main__":
     main()
