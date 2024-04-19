@@ -38,7 +38,7 @@ def prepare_data(fighter_data, fight_data, event_data):
 def run_regression_analysis(fighter_data):
     """ Run linear regression to analyze factors affecting career length. """
     # Select features and target
-    X = fighter_data[['fighter_height_cm', 'fighter_reach_cm'] + [col for col in fighter_data.columns if 'fighter_stance' in col or 'fighter_weight' in col]]
+    X = fighter_data[['fighter_height_cm', 'fighter_reach_cm', 'fighter_weight_lbs'] + [col for col in fighter_data.columns if 'fighter_stance_' in col]]
     y = fighter_data['career_length_years']
     
     # Add a constant to the model (intercept)
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     main()
     """
         Depedent Variable: Career Length
-        Indepedent Variables: physical attributes such as fighter_height_cm, fighter_reach_cm, fighter_stance
+        Indepedent Variables: physical attributes such as fighter_height_cm, fighter_reach_cm, fighter_stance, fighter_weight_lbs
         
         The model suggests that certain attributes like reach and specific fighting stances (Southpaw, Switch) are significantly 
         associated with career length, although the overall model explains very little of the variation in career lengths. 
@@ -79,4 +79,15 @@ if __name__ == "__main__":
         
         Reach and stance do play a role in determining the length of a UFC fighter's career, 
         but they are just a small part of the whole story
+        
+        *** Update after adding weight ****
+        -   Regression Analysis Interpretation for fighter_weight_lbs:
+            The coefficient for fighter_weight_lbs is -0.0007, indicating a minimal decrease in career length (0.0007 years) 
+            for each pound increase in weight. However, the high p-value of 0.579 suggests that this effect is 
+            not statistically significant, implying that changes in fighter weight have no discernible impact on the 
+            length of a UFC career within this model. The model explains only 1.1% of the variance in career lengths 
+            (R-squared = 0.011), highlighting that other unmodeled factors likely play a more significant role in
+            determining career longevity. The overall statistical insignificance and the inclusion of zero in the 95% 
+            confidence interval for weight suggest the need for additional variables or a different modeling approach to 
+            better understand career length influences.
     """
