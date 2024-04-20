@@ -2,8 +2,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import statsmodels.api as sm
-from datetime import datetime
 
 # Load and prepare data
 def load_data(base_path):
@@ -60,7 +58,7 @@ def analyze_longevity(fight_frequency, injury_summary, fighter_longevity, fighte
     print("\nCorrelation Matrix:")
     print(correlation_matrix)
 
-def check_data_quality(fight_frequency, injury_summary, fighter_longevity, fighter_data):
+def check_data_quality(fighter_data):
     # Check for missing values
     print("Missing Values:")
     print(fighter_data.isnull().sum())
@@ -104,7 +102,7 @@ def main():
     # Calculate fighter age and career length
     fighter_data = calculate_fighter_age_and_career_length(fight_data, event_data, fighter_data)
     
-    check_data_quality(fight_frequency, injury_summary, fighter_longevity, fighter_data)
+    check_data_quality(fighter_data)
     analyze_longevity(fight_frequency, injury_summary, fighter_longevity, fighter_data)
 
 if __name__ == "__main__":
