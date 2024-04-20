@@ -30,7 +30,6 @@ def analyze_injury_history(fight_stat_data):
     injury_summary = injury_history.groupby('fighter_id').sum().reset_index()
     return injury_summary
 
-# Calculate fighter longevity
 # Calculate fighter longevity based on total number of fights
 def calculate_fighter_longevity(fighter_data):
     print(fighter_data.columns)
@@ -95,7 +94,7 @@ def calculate_fighter_age_and_career_length(fight_data, event_data, fighter_data
 
 # Main function
 def main():
-    base_path = 'data/'  # Change to your data directory
+    base_path = ',/data/' 
     event_data, fight_data, fighter_data, fight_stat_data = load_data(base_path)
     event_data = preprocess_event_data(event_data)
     fight_frequency = calculate_fight_frequency(fighter_data)
